@@ -1,0 +1,55 @@
+{
+  "name": "glsl-cos-palette",
+  "version": "1.0.0",
+  "description": "glsl function for making cosine palettes",
+  "scripts": {
+    "start": "budo --verbose example/index.js -t glslify --live --open",
+    "test": "standard"
+  },
+  "keywords": [
+    "stackgl",
+    "glsl",
+    "gl",
+    "webgl",
+    "procedual",
+    "palette",
+    "cos",
+    "cosine",
+    "palette",
+    "texture",
+    "noise"
+  ],
+  "author": "Eric Arnebäck <arnebackeric@gmail.com> (https://github.com/Erkaman)",
+  "license": "MIT",
+  "devDependencies": {
+    "copy-to-clipboard": "^2.0.0",
+    "gl-geometry": "^3.1.0",
+    "gl-mat4": "^1.1.4",
+    "gl-now": "^1.4.0",
+    "gl-shader": "^4.2.0",
+    "gl-vec3": "^1.0.3",
+    "glsl-noise": "0.0.0",
+    "glslify": "^5.0.2",
+    "isosurface": "^1.0.0",
+    "orbit-camera": "^1.0.0",
+    "pnp-gui": "0.0.3",
+    "primitive-cube": "^2.0.0",
+    "primitive-icosphere": "^1.0.2"
+  },
+  "dependencies": {
+    "normals": "^1.0.1"
+  },
+  "directories": {
+    "example": "example"
+  },
+  "browserify": {
+    "transform": [
+      "glslify"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Erkaman/glsl-cos-palette.git"
+  },
+  "homepage": "https://github.com/Erkaman/glsl-cos-palette#readme"
+}
