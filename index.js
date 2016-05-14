@@ -207,22 +207,30 @@ function catmullClark(positions, cells) {
         for(var iEdge=0; iEdge < cellPositions.length; ++iEdge) {
 
             var edge;
-            /*
-            if(iEdge == 0) {
-                edge = [cellPositions[1], cellPositions[2]];
-            } else if(iEdge == 1) {
-                edge = [cellPositions[0], cellPositions[2]];
-            }else if(iEdge == 2) {
-                edge = [cellPositions[0], cellPositions[1]];
+
+            if(cellPositions.length == 3) {
+
+                if (iEdge == 0) {
+                    edge = [cellPositions[0], cellPositions[1]];
+                } else if (iEdge == 1) {
+                    edge = [cellPositions[1], cellPositions[2]];
+                } else if (iEdge == 2) {
+                    edge = [cellPositions[2], cellPositions[0]];
+                }
+            } else {
+              //  console.log("iEdge: ", iEdge);
+                if (iEdge == 0) {
+                    edge = [cellPositions[0], cellPositions[1]];
+                } else if (iEdge == 1) {
+                    edge = [cellPositions[1], cellPositions[2]];
+                } else if (iEdge == 2) {
+                    edge = [cellPositions[2], cellPositions[3]];
+                } else if (iEdge == 3) {
+                    edge = [cellPositions[3], cellPositions[0]];
+                }
+
             }
-            */
-            if(iEdge == 0) {
-                edge = [cellPositions[0], cellPositions[1]];
-            } else if(iEdge == 1) {
-                edge = [cellPositions[1], cellPositions[2]];
-            }else if(iEdge == 2) {
-                edge = [cellPositions[2], cellPositions[0]];
-            }
+
 
             edge = _sort(edge);
 
@@ -269,7 +277,6 @@ function catmullClark(positions, cells) {
 
 
 
-  // console.log("edges: " , edges);
 
 
     // compute edge point.
@@ -359,6 +366,11 @@ function catmullClark(positions, cells) {
    //     console.log("point2: " ,  point.newPoint);
     }
 
+    console.log("edges: " , edges, edges.length);
+    console.log("faces: " , faces, faces.length);
+    console.log("originalPoints: " , originalPoints, originalPoints.length );
+
+
     newPositions = [];
     newCells = [];
 
@@ -380,38 +392,61 @@ function catmullClark(positions, cells) {
 
     }
 
-    for(var iFace = 0;  iFace < faces.length; ++iFace) {
+    for(var iFace = 0;  iFace <faces.length; ++iFace) {
 
         var face = faces[iFace];
 
-/*
+
         console.log("createface", face);
 
         console.log("edges0", face.edges[0].edgePoint);
         console.log("edges1", face.edges[1].edgePoint);
         console.log("edges2", face.edges[2].edgePoint);
+        console.log("edges3", face.edges[3].edgePoint);
 
         console.log("points0", face.points[0].newPoint);
         console.log("points1", face.points[1].newPoint);
         console.log("points2", face.points[2].newPoint);
+        console.log("points3", face.points[3].newPoint);
 
         console.log("facePoint", face.facePoint);
-*/
+
 
         for(var iPoint=0; iPoint < face.points.length; ++iPoint) {
             var point = face.points[iPoint];
 
             var a = point.newPoint;
-            var b = face.edges[(iPoint+0) % face.edges.length].edgePoint; // e1
+            var b = face.edges[(iPoint+0) % face.edges.length].edgePoint;
             var c = face.facePoint;
-            var d = face.edges[(iPoint + face.edges.length-1) % face.edges.length].edgePoint; // e2
+            var d = face.edges[(iPoint + face.edges.length-1) % face.edges.length].edgePoint;
+
+            console.log("add quad", iPoint);
+
+
 
             var ia = getIndex(a);
             var ib = getIndex(b);
             var ic = getIndex(c);
             var id = getIndex(d);
 
-            newCells.push([id, ia, ib, ic     ]);
+
+          //  newCells.push([ia, ib, ic, id    ]);
+
+            /*
+            console.log("a", a );
+            console.log("d", d );
+
+
+
+            console.log("c", c );
+            console.log("b", b );
+            */
+
+
+             newCells.push([id, ia, ib, ic     ]);
+
+      //      a d c b
+
         }
 
     }

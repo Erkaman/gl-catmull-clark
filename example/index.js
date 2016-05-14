@@ -52,7 +52,7 @@ shell.on("gl-init", function () {
 
     
     gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
+    gl.disable(gl.CULL_FACE);
     gl.cullFace(gl.BACK)
     
     gui = new createGui(gl);
@@ -144,21 +144,34 @@ shell.on("gl-init", function () {
     ];
 
 
-    var obj = catmullClark(positions, cells);
+    var obj = catmullClark(positions, quadCells);
     positions = obj.positions;
-    cells = quadsToTris(obj.cells);
+    cells = (obj.cells);
 
-/*
-    obj = catmullClark(positions, cells);
-    positions = obj.positions;
-    cells = quadsToTris(obj.cells);
 
     obj = catmullClark(positions, cells);
     positions = obj.positions;
-    cells = quadsToTris(obj.cells);
-*/
+    cells = (obj.cells);
+
+    obj = catmullClark(positions, cells);
+    positions = obj.positions;
+    cells = (obj.cells);
 
 
+
+    cells = quadsToTris(cells);
+
+
+
+    /*
+        obj = catmullClark(positions, cells);
+        positions = obj.positions;
+        cells = quadsToTris(obj.cells);
+
+        obj = catmullClark(positions, cells);
+        positions = obj.positions;
+        cells = quadsToTris(obj.cells);
+    */
 
 
     // cells = quadsToTris(quadCells);
