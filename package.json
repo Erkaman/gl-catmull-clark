@@ -31,6 +31,7 @@
     "glsl-noise": "0.0.0",
     "glslify": "^5.0.2",
     "isosurface": "^1.0.0",
+    "normals": "^1.0.1",
     "orbit-camera": "^1.0.0",
     "pnp-gui": "0.0.3",
     "primitive-cube": "^2.0.0",

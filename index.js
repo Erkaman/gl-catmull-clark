@@ -205,11 +205,11 @@ function catmullClark(positions, cells) {
 
             var edge;
             if(iEdge == 0) {
-                edge = [cellPositions[0], cellPositions[1]];
+                edge = [cellPositions[1], cellPositions[2]];
             } else if(iEdge == 1) {
                 edge = [cellPositions[0], cellPositions[2]];
             }else if(iEdge == 2) {
-                edge = [cellPositions[1], cellPositions[2]];
+                edge = [cellPositions[0], cellPositions[1]];
             }
 
             edge = _sort(edge);
@@ -356,26 +356,41 @@ function catmullClark(positions, cells) {
 
     var index = 0;
 
-    console.log("face count", faces.length );
+   // console.log("face count", faces.length );
 
     for(var iFace = 0;  iFace < faces.length; ++iFace) {
 
         var face = faces[iFace];
 
-        console.log("face", face);
+/*
+        console.log("createface", face);
 
-        console.log("edges", face.edges);
+        console.log("edges0", face.edges[0].edgePoint);
+        console.log("edges1", face.edges[1].edgePoint);
+        console.log("edges2", face.edges[2].edgePoint);
+
+        console.log("points0", face.points[0].newPoint);
+        console.log("points1", face.points[1].newPoint);
+        console.log("points2", face.points[2].newPoint);
+
+        console.log("facePoint", face.facePoint);
+*/
 
 
         for(var iPoint=0; iPoint < face.points.length; ++iPoint) {
             var point = face.points[iPoint];
 
-            console.log("point ", point);
 
             var a = point.newPoint;
-            var b = face.edges[(iPoint +1) % face.edges.length].edgePoint;
+            var b = face.edges[(iPoint +1) % face.edges.length].edgePoint; // e1
             var c = face.facePoint;
-            var d = face.edges[(iPoint)].edgePoint;
+            var d = face.edges[(iPoint + 2) % face.edges.length].edgePoint; // e2
+
+/*
+            console.log("point ", iPoint );
+            console.log("edge ", (iPoint +1) % face.edges.length );
+            console.log("edge ", (iPoint +2) % face.edges.length );
+*/
 
             newPositions.push(a);
             newPositions.push(b);
@@ -388,18 +403,17 @@ function catmullClark(positions, cells) {
             var ic =  index++;
             var id =  index++;
 
-            newCells.push([ia,ib,ic]);
-            newCells.push([ib,ic,id]);
+            newCells.push([ic,ib,ia]);
+            newCells.push([id,ic,ia]);
 
 
 
+/*
             console.log("a", a);
-            console.log("b", b, face.edges[(iPoint +1) % face.edges.length] );
+            console.log("b", b );
             console.log("c", c);
-            console.log("d", d, face.edges[(iPoint)]);
-
-
-
+            console.log("d", d);
+*/
         }
 
     }

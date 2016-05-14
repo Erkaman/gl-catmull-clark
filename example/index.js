@@ -9,7 +9,7 @@ var createOrbitCamera = require('orbit-camera');
 var shell = require("gl-now")();
 var createGui = require("pnp-gui");
 var createTexture = require('gl-texture2d');
-
+var normals = require('normals');
 
 var revolveCurve = require("../index.js").revolveCurve;
 var catmullClark = require("../index.js").catmullClark;
@@ -37,7 +37,7 @@ shell.on("gl-init", function () {
 
     
     gl.enable(gl.DEPTH_TEST);
-    gl.disable(gl.CULL_FACE);
+    gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK)
     
     gui = new createGui(gl);
@@ -113,10 +113,12 @@ shell.on("gl-init", function () {
     positions = obj.positions;
     cells = obj.cells;
 
+    obj = catmullClark(obj.positions, obj.cells);
+
 
     sphereGeo = Geometry(gl)
-        .attr('aPosition', positions).faces(cells);
-      //  .attr('aNormal', cube.normals );
+        .attr('aPosition', positions).faces(cells).
+        attr('aNormal',  require('normals').vertexNormals(cells, positions)  );
 
 
 
