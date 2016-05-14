@@ -107,13 +107,17 @@ shell.on("gl-init", function () {
     ];
 
     var obj = catmullClark(positions, cells);
-
-    console.log("obj, ", obj);
-
     positions = obj.positions;
     cells = obj.cells;
 
     obj = catmullClark(obj.positions, obj.cells);
+    positions = obj.positions;
+    cells = obj.cells;
+/*
+    obj = catmullClark(obj.positions, obj.cells);
+    positions = obj.positions;
+    cells = obj.cells;
+*/
 
 
     sphereGeo = Geometry(gl)
