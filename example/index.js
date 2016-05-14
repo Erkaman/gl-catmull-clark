@@ -24,6 +24,21 @@ var mouseLeftDownPrev = false;
 
 var bg = [0.6, 0.7, 1.0]; // clear color.
 
+function quadsToTris(cells) {
+
+    var newCells = [];
+
+    for (var iCell = 0; iCell < cells.length; ++iCell) {
+
+        var cell = cells[iCell];
+
+        newCells.push([cell[0],cell[1], cell[2]]);
+        newCells.push([cell[0],cell[2], cell[3]]);
+
+    }
+
+    return newCells;
+}
 
 shell.on("gl-init", function () {
     var gl = shell.gl
@@ -78,6 +93,30 @@ shell.on("gl-init", function () {
 
     ];
 
+    quadCells = [
+        // +y
+
+        [  2,3,1,0 ]   ,
+
+        // -y
+        [4,5,7,6],
+
+        // +z
+        [0,1,5, 4],
+
+        // -z
+        [6,7,3,2],
+
+
+        // +x
+        [   6,2,0,4  ],
+
+
+        // -x
+        [7,5,1,3],
+
+    ];
+
     cells = [
         // +y
         [2,1,0],
@@ -102,23 +141,27 @@ shell.on("gl-init", function () {
         // -x
         [1, 3, 5],
         [7,5,3],
-
-
     ];
+
 
     var obj = catmullClark(positions, cells);
     positions = obj.positions;
-    cells = obj.cells;
+    cells = quadsToTris(obj.cells);
 
-    obj = catmullClark(obj.positions, obj.cells);
-    positions = obj.positions;
-    cells = obj.cells;
 /*
-    obj = catmullClark(obj.positions, obj.cells);
+    obj = catmullClark(positions, cells);
     positions = obj.positions;
-    cells = obj.cells;
+    cells = quadsToTris(obj.cells);
+
+    obj = catmullClark(positions, cells);
+    positions = obj.positions;
+    cells = quadsToTris(obj.cells);
 */
 
+
+
+
+    // cells = quadsToTris(quadCells);
 
     sphereGeo = Geometry(gl)
         .attr('aPosition', positions).faces(cells).

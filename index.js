@@ -204,15 +204,24 @@ function catmullClark(positions, cells) {
 
         var faceEdges = [];
 
-        for(var iEdge=0; iEdge < 3; ++iEdge) {
+        for(var iEdge=0; iEdge < cellPositions.length; ++iEdge) {
 
             var edge;
+            /*
             if(iEdge == 0) {
                 edge = [cellPositions[1], cellPositions[2]];
             } else if(iEdge == 1) {
                 edge = [cellPositions[0], cellPositions[2]];
             }else if(iEdge == 2) {
                 edge = [cellPositions[0], cellPositions[1]];
+            }
+            */
+            if(iEdge == 0) {
+                edge = [cellPositions[0], cellPositions[1]];
+            } else if(iEdge == 1) {
+                edge = [cellPositions[1], cellPositions[2]];
+            }else if(iEdge == 2) {
+                edge = [cellPositions[2], cellPositions[0]];
             }
 
             edge = _sort(edge);
@@ -238,8 +247,6 @@ function catmullClark(positions, cells) {
             // http://stackoverflow.com/questions/2523436/javascript-implementation-of-a-set-data-structure
             edgeObject.points[0].edges.add( edgeObject );
             edgeObject.points[1].edges.add( edgeObject );
-
-
 
             // console.log("BBBBBBBBBBBBB edge", edge, "obj", edgeObject);
 
@@ -391,56 +398,20 @@ function catmullClark(positions, cells) {
         console.log("facePoint", face.facePoint);
 */
 
-
-
         for(var iPoint=0; iPoint < face.points.length; ++iPoint) {
             var point = face.points[iPoint];
 
             var a = point.newPoint;
-            var b = face.edges[(iPoint +1) % face.edges.length].edgePoint; // e1
+            var b = face.edges[(iPoint+0) % face.edges.length].edgePoint; // e1
             var c = face.facePoint;
-            var d = face.edges[(iPoint + 2) % face.edges.length].edgePoint; // e2
+            var d = face.edges[(iPoint + face.edges.length-1) % face.edges.length].edgePoint; // e2
 
-
-/*
-            console.log("point ", iPoint );
-            console.log("edge ", (iPoint +1) % face.edges.length );
-            console.log("edge ", (iPoint +2) % face.edges.length );
-*/
-
-            /*
-            newPositions.push(a);
-            newPositions.push(b);
-            newPositions.push(c);
-            newPositions.push(d);
-*/
-
-            /*
-            var ia =  index++;
-            var ib =  index++;
-            var ic =  index++;
-            var id =  index++;
-            */
             var ia = getIndex(a);
             var ib = getIndex(b);
             var ic = getIndex(c);
             var id = getIndex(d);
 
-
-
-            newCells.push([ic,ib,ia]);
-            newCells.push([id,ic,ia]);
-
-
-
-/*
-            console.log("index a", ia);
-            console.log("index b", ib );
-            console.log("index c", ic);
-            console.log("index d", id);
-*/
-          //  console.log("index: ", index);
-
+            newCells.push([id, ia, ib, ic     ]);
         }
 
     }
