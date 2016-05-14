@@ -126,14 +126,6 @@ function _mad(out, a, b, s) {
 
 function catmullClark(positions, cells) {
 
-    console.log("AAAAAAAAAAAA");
-
-
-
-   //  create array of faces, where every face can have face-point stores.
-
-
-
     // original points, indexed by their indices.
     // store adjacent faces and adjacent vertices.
     originalPoints = [];
@@ -167,7 +159,6 @@ function catmullClark(positions, cells) {
             // check at positionIndex
             if(typeof originalPoints[positionIndex] === 'undefined' ) {
                 // create the object on the fly.
-          //      console.log("AAAAAAAAAAAAAA create new point");
                 var v = positions[positionIndex];
 
                 var vec = vec3.fromValues(v[0], v[1], v[2]);
@@ -199,8 +190,6 @@ function catmullClark(positions, cells) {
         }
         vec3.scale(avg, avg, 1.0 / faces[iCell].points.length );
         faces[iCell].facePoint = avg;
-        console.log("avg " ,  1.0 / faces[iCell].points.length );
-     //   console.log("Face: ", iCell, " lol: ",  faces[iCell]);
 
         var faceEdges = [];
 
@@ -210,6 +199,7 @@ function catmullClark(positions, cells) {
 
             if(cellPositions.length == 3) {
 
+
                 if (iEdge == 0) {
                     edge = [cellPositions[0], cellPositions[1]];
                 } else if (iEdge == 1) {
@@ -218,7 +208,6 @@ function catmullClark(positions, cells) {
                     edge = [cellPositions[2], cellPositions[0]];
                 }
             } else {
-              //  console.log("iEdge: ", iEdge);
                 if (iEdge == 0) {
                     edge = [cellPositions[0], cellPositions[1]];
                 } else if (iEdge == 1) {
@@ -256,7 +245,6 @@ function catmullClark(positions, cells) {
             edgeObject.points[0].edges.add( edgeObject );
             edgeObject.points[1].edges.add( edgeObject );
 
-            // console.log("BBBBBBBBBBBBB edge", edge, "obj", edgeObject);
 
             faceEdges.push(edgeObject);
 
@@ -281,7 +269,6 @@ function catmullClark(positions, cells) {
 
     // compute edge point.
     for(key in edges) {
-       // console.log("edge: " ,key, " : ",  edges[key]  );
 
         var edge = edges[key];
 
@@ -306,7 +293,6 @@ function catmullClark(positions, cells) {
         }
 
         vec3.scale(avg, avg, 1.0 / count );
-       // console.log("count: ", count);
 
         edge.edgePoint = avg;
 
@@ -316,7 +302,6 @@ function catmullClark(positions, cells) {
 
         for(var i = 0; i < edge.points.length; ++i ) {
             var endPoint = edge.points[i].point;
-         //   console.log("end: ", endPoint.toString() );
             vec3.add(avg2, endPoint, avg2);
             ++count;
         }
@@ -326,7 +311,6 @@ function catmullClark(positions, cells) {
         edge.midPoint = avg2;
 
 
-    //    console.log("count ", count, "obj ", edge  );
     }
 
 
@@ -339,7 +323,6 @@ function catmullClark(positions, cells) {
 
 
         var newPoint = vec3.fromValues(0,0,0);
-    //    console.log("faces: ",  point.faces.length );
 
 
 
@@ -350,7 +333,6 @@ function catmullClark(positions, cells) {
         }
         for (var edge of point.edges) {
             // 'raz', {}, 'foo' iterated
-            //console.log("edge: ", edge);
             _mad(newPoint, newPoint, edge.midPoint, 2);
         }
         vec3.scale(newPoint, newPoint, 1.0 / n );
@@ -361,15 +343,7 @@ function catmullClark(positions, cells) {
 
         point.newPoint = newPoint
 
-
-     //   console.log("point: " ,point );
-   //     console.log("point2: " ,  point.newPoint);
     }
-
-    console.log("edges: " , edges, edges.length);
-    console.log("faces: " , faces, faces.length);
-    console.log("originalPoints: " , originalPoints, originalPoints.length );
-
 
     newPositions = [];
     newCells = [];
@@ -396,7 +370,7 @@ function catmullClark(positions, cells) {
 
         var face = faces[iFace];
 
-
+/*
         console.log("createface", face);
 
         console.log("edges0", face.edges[0].edgePoint);
@@ -410,6 +384,7 @@ function catmullClark(positions, cells) {
         console.log("points3", face.points[3].newPoint);
 
         console.log("facePoint", face.facePoint);
+        */
 
 
         for(var iPoint=0; iPoint < face.points.length; ++iPoint) {
@@ -420,7 +395,6 @@ function catmullClark(positions, cells) {
             var c = face.facePoint;
             var d = face.edges[(iPoint + face.edges.length-1) % face.edges.length].edgePoint;
 
-            console.log("add quad", iPoint);
 
 
 
@@ -430,23 +404,7 @@ function catmullClark(positions, cells) {
             var id = getIndex(d);
 
 
-          //  newCells.push([ia, ib, ic, id    ]);
-
-            /*
-            console.log("a", a );
-            console.log("d", d );
-
-
-
-            console.log("c", c );
-            console.log("b", b );
-            */
-
-
-             newCells.push([id, ia, ib, ic     ]);
-
-      //      a d c b
-
+            newCells.push([id, ia, ib, ic ]);
         }
 
     }

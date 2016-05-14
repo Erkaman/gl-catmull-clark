@@ -147,8 +147,7 @@ shell.on("gl-init", function () {
     var obj = catmullClark(positions, quadCells);
     positions = obj.positions;
     cells = (obj.cells);
-
-
+    
     obj = catmullClark(positions, cells);
     positions = obj.positions;
     cells = (obj.cells);
