@@ -9,7 +9,7 @@ var createOrbitCamera = require('orbit-camera');
 var shell = require("gl-now")();
 var createGui = require("pnp-gui");
 var normals = require('normals');
-var tree = require('./tree.js');
+var createThing = require('./thing.js');
 var boundingBox = require('vertices-bounding-box');
 var tform = require('geo-3d-transform-mat4');
 var cameraPosFromViewMatrix = require('gl-camera-pos-from-view-matrix');
@@ -31,8 +31,8 @@ var models = [];
 /*
 Can be tweaked by the GUI
  */
-var renderModel = {val: 0};
-var numSubdividions = {val: 3};
+var renderModel = {val: 1};
+var numSubdividions = {val: 5};
 
 
 
@@ -115,9 +115,7 @@ shell.on("gl-init", function () {
 
 
 
-    /*
-    Create "sphere" models.
-     */
+    // Create "sphere" models
     models[0] = [];
     for(var i = 0; i <= 3; ++i) {
 
@@ -140,7 +138,7 @@ shell.on("gl-init", function () {
 
 
 
-    obj = tree.tree();
+    obj = createThing();
     thingPositions = obj.positions;
     thingCells = (obj.cells);
 
@@ -167,7 +165,7 @@ shell.on("gl-init", function () {
             .attr('aNormal', require('normals').vertexNormals(obj.cells, obj.positions));
     }
 
-    catmullClark(positions, thingCells, 3, true);
+
 });
 
 shell.on("gl-render", function (t) {

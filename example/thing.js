@@ -1,7 +1,6 @@
 var vec3 = require('gl-vec3');
-var boundingBox = require('vertices-bounding-box')
-var tform = require('geo-3d-transform-mat4')
-
+var boundingBox = require('vertices-bounding-box');
+var tform = require('geo-3d-transform-mat4');
 var mat4 = require('gl-mat4');
 var quat = require('gl-quat');
 
@@ -39,11 +38,9 @@ function addSegment(dir, length, scale, rotation) {
 
 
     /*
-     Do scaling and roation
+     Do scaling and rotation
      */
-    var ps = [q0, q1, q2, q3
-
-    ];
+    var ps = [q0, q1, q2, q3];
 
 
     var bb = boundingBox(ps)
@@ -103,19 +100,17 @@ function addSegment(dir, length, scale, rotation) {
 
     cells.push([iq0, iq1, ip1, ip0]);
 
-        cells.push([iq1, iq2, ip2, ip1])
+    cells.push([iq1, iq2, ip2, ip1])
 
 
     cells.push([iq2, iq3, ip3, ip2]);
     cells.push([ip0, ip3, iq3, iq0]);
-
 
     index += 4;
     p0 = q0;
     p1 = q1;
     p2 = q2;
     p3 = q3;
-
 }
 
 function finish() {
@@ -129,10 +124,9 @@ function finish() {
 
 }
 
-function tree() {
+function createThing() {
     positions = [];
     cells = [];
-
 
 
     // make base.
@@ -141,60 +135,35 @@ function tree() {
     positions.push(p2);
     positions.push(p3);
 
-    cells.push([index, index+1, index+2, index+3]);
+    cells.push([index, index + 1, index + 2, index + 3]);
 
     index += 4;
 
     addSegment(vec3.fromValues(0.3, 0.6, 0.3), 3.0, 10.0);
-
-
-    addSegment(vec3.fromValues(0.3, 0.6, 0.3), 3.0, [2, 1/10, 2.0]);
-    addSegment(vec3.fromValues(0.3, 0.6, 0.3), 3.0, [1/20, 1.0, 1/20]);
+    addSegment(vec3.fromValues(0.3, 0.6, 0.3), 3.0, [2, 1 / 10, 2.0]);
+    addSegment(vec3.fromValues(0.3, 0.6, 0.3), 3.0, [1 / 20, 1.0, 1 / 20]);
     addSegment(vec3.fromValues(0.1, 0.6, 0.3), 6.0, 1.1);
     addSegment(vec3.fromValues(0.1, 0.6, -0.3), 6.0, 1.0);
-
     addSegment(vec3.fromValues(0.1, 0.6, -0.1), 6.0, 4.0);
-
-    addSegment(vec3.fromValues(0.1, 0.6, -0.1), 6.0, 1/4);
-
+    addSegment(vec3.fromValues(0.1, 0.6, -0.1), 6.0, 1 / 4);
     addSegment(vec3.fromValues(0.1, 0.8, 0), 3.0, 1.0, [0.8, 0.0, 0.0]);
-
     addSegment(vec3.fromValues(0.0, 0.8, 0.9), 3.0, 1.0, [0.4, 0.4, 0.4]);
-
     addSegment(vec3.fromValues(0.3, 0.8, 0.3), 3.0, 1.0);
-
     addSegment(vec3.fromValues(0.3, 0.3, 0.3), 3.0, [1.0, 0.5, 0.5]);
-
     addSegment(vec3.fromValues(0.3, 0.3, 0.7), 3.0, 1.0, [1.0, 0.7, 0.7]);
-
-
     addSegment(vec3.fromValues(0.3, 0.3, 0.7), 3.0, [20.0, 4.0, 1.0]);
-
-
-   addSegment(vec3.fromValues(0.3, -0.3, 0.7), 10.0, [1/20.0, 1/4, 1.0]);
-
+    addSegment(vec3.fromValues(0.3, -0.3, 0.7), 10.0, [1 / 20.0, 1 / 4, 1.0]);
     addSegment(vec3.fromValues(0.3, -0.9, 0.7), 3.0, [1.0, 1.0, 1.0]);
-
     addSegment(vec3.fromValues(0.3, -0.9, 0.7), 3.0, [4.0, 1.0, 4.0]);
-
     addSegment(vec3.fromValues(0.0, -2.9, 0.7), 3.0, 0.3);
-
     addSegment(vec3.fromValues(0.0, -2.9, 0.7), 3.0, 5.0);
-
     addSegment(vec3.fromValues(0.0, -2.9, 0.7), 1.0, 5.0);
 
-
-
-
-    // finish.
     finish();
-
-
-
 
     var obj = {positions: positions, cells: cells};
 
     return obj;
 }
 
-module.exports.tree = tree;
+module.exports = createThing;
