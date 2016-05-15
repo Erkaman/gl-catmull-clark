@@ -4,21 +4,21 @@ var mat4 = require('gl-mat4');
 var vec3 = require('gl-vec3');
 var Geometry = require('gl-geometry');
 var glShader = require('gl-shader');
-var glslify = require('glslify')
+var glslify = require('glslify');
 var createOrbitCamera = require('orbit-camera');
 var shell = require("gl-now")();
 var createGui = require("pnp-gui");
-var createTexture = require('gl-texture2d');
 var normals = require('normals');
+var tree = require('./tree.js');
+var boundingBox = require('vertices-bounding-box');
+var tform = require('geo-3d-transform-mat4');
+var cameraPosFromViewMatrix = require('gl-camera-pos-from-view-matrix');
 
-var revolveCurve = require("../index.js").revolveCurve;
-var catmullClark = require("../index.js").catmullClark;
+var catmullClark = require("../index.js");
 
+var shader, geo;
 
-var sphereShader, quadShader, quadGeo, sphereGeo, quadGeo, fbo, bakeShader, curveTexture;
-var bakeResolution = 256*2*2;
-
-var camera = createOrbitCamera([0, -3.0, 0], [0, 0, 0], [0, 1, 0]);
+var camera = createOrbitCamera([6, -10.0, 6], [0, 0, 0], [0, 1, 0]);
 
 var mouseLeftDownPrev = false;
 
@@ -32,9 +32,8 @@ function quadsToTris(cells) {
 
         var cell = cells[iCell];
 
-        newCells.push([cell[0],cell[1], cell[2]]);
-        newCells.push([cell[0],cell[2], cell[3]]);
-
+        newCells.push([cell[0], cell[1], cell[2]]);
+        newCells.push([cell[0], cell[2], cell[3]]);
     }
 
     return newCells;
@@ -43,111 +42,118 @@ function quadsToTris(cells) {
 shell.on("gl-init", function () {
     var gl = shell.gl
 
-    // (-0.020900, 0.718350)
-//    Vector2f s = CatmullRomSpline(Vector2f(0.0, 0.0),Vector2f(-0.2, 0.6),Vector2f(0.6, 0.9),Vector2f(1.0, 1.0), 0.3);
-
-
-    // var s = catmullRom(0.3,   [0.0, 0.0], [-0.2, 0.6],[0.6, 0.9], [1.0, 1.0]  );
-    //console.log("S: ", s);
-
-    
     gl.enable(gl.DEPTH_TEST);
-    gl.disable(gl.CULL_FACE);
+    gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK)
-    
+
     gui = new createGui(gl);
     gui.windowSizes = [300, 380];
 
-    sphereShader = glShader(gl, glslify("./sphere_vert.glsl"), glslify("./sphere_frag.glsl"));
+    shader = glShader(gl, glslify("./gold_vert.glsl"), glslify("./gold_frag.glsl"));
 
     // fix intial camera view.
-    camera.rotate([0,0], [0,0] );
-
-
-     var cps = [
-        [0.0, 0.10],
-        [0.5, 0.10],
-        [0.5, 0.90],
-        [0.0, 0.90],
-    ];
-
-   // rotated = revolveCurve(cps);
-
-    /*
-    var cube = require('primitive-cube')(1,1,1,1,1,1);
-
-    console.log("pos ", cube.positions );
-    console.log("faces ", cube.cells );
-*/
+    camera.rotate([0, 0], [0, 0]);
 
     positions = [
-        [+1,+1,+1], // 0
-        [-1,+1,+1], // 1
-        [+1,+1,-1], // 2
-        [-1,+1,-1], // 3
+        [+1, +1, +1], // 0
+        [-1, +1, +1], // 1
+        [+1, +1, -1], // 2
+        [-1, +1, -1], // 3
 
-        [+1,-1,+1], // 4
-        [-1,-1,+1], // 5
-        [+1,-1,-1], // 6
-        [-1,-1,-1]  // 7
+        [+1, -1, +1], // 4
+        [-1, -1, +1], // 5
+        [+1, -1, -1], // 6
+        [-1, -1, -1]  // 7
 
     ];
 
     quadCells = [
         // +y
 
-        [  2,3,1,0 ]   ,
+        [2, 3, 1, 0],
 
         // -y
-        [4,5,7,6],
+        [4, 5, 7, 6],
 
         // +z
-        [0,1,5, 4],
+        [0, 1, 5, 4],
 
         // -z
-        [6,7,3,2],
+        [6, 7, 3, 2],
 
 
         // +x
-        [   6,2,0,4  ],
+        [6, 2, 0, 4],
 
 
         // -x
-        [7,5,1,3],
+        [7, 5, 1, 3],
 
     ];
 
     cells = [
         // +y
-        [2,1,0],
-        [1,2,3],
+        [2, 1, 0],
+        [1, 2, 3],
 
         // -y
-        [4,5,6],
-        [7,6,5],
+        [4, 5, 6],
+        [7, 6, 5],
 
         // +z
-        [0,1,4],
-        [1,5,4 ],
+        [0, 1, 4],
+        [1, 5, 4],
 
         // -z
-        [6,3,2],
-        [3,6,7],
+        [6, 3, 2],
+        [3, 6, 7],
 
         // +x
-        [4,2,0],
-        [2,4,6],
+        [4, 2, 0],
+        [2, 4, 6],
 
         // -x
         [1, 3, 5],
-        [7,5,3],
+        [7, 5, 3],
     ];
 
+    var obj;
 
-    var obj = catmullClark(positions, quadCells);
+    cells = quadCells;
+
+    obj = tree.tree();
     positions = obj.positions;
     cells = (obj.cells);
-    
+
+
+    var bb = boundingBox(positions)
+
+    // Translate the geometry center to the origin.
+    var _translate = [
+        -0.5 * (bb[0][0] + bb[1][0]),
+        -0.5 * (bb[0][1] + bb[1][1]),
+        -0.5 * (bb[0][2] + bb[1][2])
+    ]
+    var mat = mat4.create()
+    mat4.translate(mat, mat, _translate)
+
+    positions = tform(positions, mat)
+
+
+    // Scale the geometry to a 1x1x1 cube.
+    // Shrink it a little to have a buffer
+    // from edge effects.
+    var bound = 16.0;
+    var _scale = [
+        bound / (bb[1][0] - bb[0][0]),
+        bound / (bb[1][1] - bb[0][1]),
+        bound / (bb[1][2] - bb[0][2])
+    ]
+    var scale = mat4.create()
+    mat4.scale(scale, scale, _scale)
+    positions = tform(positions, scale)
+
+
     obj = catmullClark(positions, cells);
     positions = obj.positions;
     cells = (obj.cells);
@@ -156,32 +162,16 @@ shell.on("gl-init", function () {
     positions = obj.positions;
     cells = (obj.cells);
 
+    obj = catmullClark(positions, cells);
+    positions = obj.positions;
+    cells = (obj.cells);
 
 
     cells = quadsToTris(cells);
 
 
-
-    /*
-        obj = catmullClark(positions, cells);
-        positions = obj.positions;
-        cells = quadsToTris(obj.cells);
-
-        obj = catmullClark(positions, cells);
-        positions = obj.positions;
-        cells = quadsToTris(obj.cells);
-    */
-
-
-    // cells = quadsToTris(quadCells);
-
-    sphereGeo = Geometry(gl)
-        .attr('aPosition', positions).faces(cells).
-        attr('aNormal',  require('normals').vertexNormals(cells, positions)  );
-
-
-
-
+    geo = Geometry(gl)
+        .attr('aPosition', positions).faces(cells).attr('aNormal', require('normals').vertexNormals(cells, positions));
 });
 
 shell.on("gl-render", function (t) {
@@ -195,25 +185,27 @@ shell.on("gl-render", function (t) {
     var projection = mat4.create();
     var scratchMat = mat4.create();
     var view = camera.view(scratchMat);
+    var scratchVec = vec3.create();
 
     mat4.perspective(projection, Math.PI / 2, canvas.width / canvas.height, 0.1, 10000.0);
 
     /*
-    Render Sphere
+     Render geometry.
      */
 
-    sphereShader.bind();
+    shader.bind();
 
-    sphereShader.uniforms.uView = view;
-    sphereShader.uniforms.uProjection = projection;
+    shader.uniforms.uView = view;
+    shader.uniforms.uProjection = projection;
+    shader.uniforms.uEyePos = cameraPosFromViewMatrix(scratchVec, view);
 
 
-    sphereGeo.bind(sphereShader);
-    sphereGeo.draw();
+    geo.bind(shader);
+    geo.draw();
 
 
     /*
-    Render GUI.
+     Render GUI.
      */
 
     var pressed = shell.wasDown("mouse-left");
@@ -227,8 +219,7 @@ shell.on("gl-render", function (t) {
     mouseLeftDownPrev = pressed;
 
     gui.begin(io, "Window");
-
-
+    
     gui.end(gl, canvas.width, canvas.height);
 });
 
@@ -247,59 +238,3 @@ shell.on("tick", function () {
         camera.zoom(shell.scroll[1] * 0.01);
     }
 });
-
-/*
-ideas:
-
-make a bowl.
-make a lightbulp.
-make pillar.
-
-
-
-
-algorithm:
-organize the mesh data as follows:
-
-with every face, also store the facet point.
-with every edge, also store the edge point.
-
-
-
- model nm = model_new();
- foreach (i, f, m->f) {// iterate through all faces.
-
-    foreach(j, v, f->v) { // iterate through all vertices of face.
-       _get_idx(a, updated_point(v));
-       _get_idx(b, edge_point(elem(f->e, (j + 1) % len(f->e))));
-       _get_idx(c, face_point(f));
-       _get_idx(d, edge_point(elem(f->e, j)));
-       model_add_face(nm, 4, a, b, c, d);
-     }
- }
-
-
-face point: average of all four points of face.
-
-edge point: Set each edge point to be the average of the two neighbouring face points and its two original endpoints.
-
-for every vertex P, we then create the updated point:
-
-n is just number of faces that P is part of.
-    compute sum:
-        1*(all 4 faces adjacent to P) +
-        2*(average of the center of the edges the point is adjacent to)
-        (n-3)*(original point P)
-
-
- */
-
-
-/*
-
-
-
-
-
-
- */

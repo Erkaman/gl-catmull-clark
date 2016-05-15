@@ -3,84 +3,6 @@ var normals = require('normals');
 var Set = require('es6-set');
 
 
-function _center(cp) {
-    return [cp[0], (-1 + 2* (1.0-cp[1]) ) ];
-}
-
-function revolveCurve(cps) {
-
-    var positions = [];
-    var cells = [];
-
-    var slices = 10;
-    var index = 0;
-    for (var i = 0; i <= slices; ++i) {
-
-        var theta = (i * Math.PI * 2) / slices;
-
-        for(var j = 1; j < cps.length-1; ++j) {
-            var cp = _center(cps[j]);
-
-            var p = vec3.fromValues(cp[0], 0, cp[1] );
-
-            var rotatedP = vec3.create();
-            vec3.rotateZ(rotatedP, p, vec3.fromValues(0,0,0), theta);
-
-            positions.push([rotatedP[0],rotatedP[1],rotatedP[2]]);
-
-            ++index;
-
-            if (i != 0 && j != 1) { // create faces in the second iteration, and beyond.
-
-                var i1 = index - 1;
-                var i2 = index - 2;
-                var i3 = index - 1 - (cps.length - 2);
-                var i4 = index - 1 - (cps.length - 2) - 1;
-
-                console.log("i", i1, i2, i3, i4);
-
-                cells.push([i1, i2, i3 ]);
-                cells.push([i4, i3, i2]);
-            }
-        }
-    }
-
-    var cp = _center(cps[0]);
-    var topIndex = index; // top center index;
-    positions.push([cp[0], 0, cp[1]]);
-
-    ++index;
-
-    cp = _center(cps[cps.length-1]);
-    var bottomIndex = index; // bottom center index;
-    positions.push([cp[0], 0, cp[1]]);
-
-    for (var i = 0; i < slices; ++i) {
-
-        var i1 = topIndex;
-        var i2 = i     * (cps.length - 2);
-        var i3 = (i+1) * (cps.length - 2);
-
-        cells.push([i1, i2, i3 ]);
-
-        i1 = bottomIndex;
-        i2 = i     * (cps.length - 2) + (cps.length - 3);
-        i3 = (i+1) * (cps.length - 2) + (cps.length - 3);
-        cells.push([i3, i2, i1 ]);
-
-        //console.log("index: ", i1, i2, i3);
-
-
-    }
-
-    console.log("positions: ", positions );
-    console.log("cells: ", cells );
-
-
-    //         .attr('aNormal', )
-    return {positions: positions, cells: cells, normals: normals.vertexNormals(cells, positions) };
-}
-
 /*
 for every face store:
     the points of the face.
@@ -324,8 +246,6 @@ function catmullClark(positions, cells) {
 
         var newPoint = vec3.fromValues(0,0,0);
 
-
-
         for(var j = 0; j < point.faces.length; ++j ) {
             var facePoint = point.faces[j].facePoint;
 
@@ -414,7 +334,6 @@ function catmullClark(positions, cells) {
 
 }
 
-module.exports.revolveCurve= revolveCurve;
-module.exports.catmullClark= catmullClark;
+module.exports= catmullClark;
 
 
