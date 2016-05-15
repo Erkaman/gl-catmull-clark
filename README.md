@@ -1,55 +1,42 @@
-# cos-palette
+# gl-catmull-clark
 
-`cosPalette` is a simple shader function that is defined as
+This module implements the Catmull-Clark subdivision surface algorithm
+for WebGL usage. If you feed a low-poly, ugly mesh to this
+algorithm, the result will be a smooth, beautiful mesh. A
+[demo](http://erkaman.github.io/gl-catmull-clark/) is provided.
 
-```glsl
-vec3 cosPalette(  float t,  vec3 a,  vec3 b,  vec3 c, vec3 d ){
-    return a + b*cos( 6.28318*(c*t+d) );
-}
-```
+Below you can see what it looks like if you run the algorithm
+on a low-poly mesh:
 
-where `a,b,c,d` are RGB-colors. This function can be used to make very compact color palettes.
-A simple editor for making such palettes is provided [here](http://erkaman.github.io/glsl-cos-palette/).
+<img src="images/subdivide.png" width="1110" height="620" />
 
+## API
 
-The function `cosPalette(t, a, b,  c, d )`, which is the palette, will basically assign a color to every value `t`, which is in the range `[0,1]`. So if you set `t` to be the value of some noise function(say, Perlin noise) in range `[0,1]`, you can use this
-palette to make simple procedural textures. The palette will basically colorize the noise. In the fragment shader, we can easily procedurally generate a texture by doing something like
+### function catmullClark(positions, cells, numSubdivisions[, convertToTriangles])
 
-```glsl
-    float t = noise(vPosition);
-    vec3 tex = cosPalette(t, uAColor, uBColor, uCColor, uDColor );
-```
+Run the Catmull-Clark algorithm `numSubdivisions` times on the
+mesh specified by `positions` and `cells`. **Returns** a subdivided mesh
+in an object on the form  `{positions: subdividedPositions, cells: subdividedCells}`
 
-Credit goes to [Inigo Quilez](http://www.iquilezles.org/www/articles/palettes/palettes.htm) for coming up with this technique.
+* `positions` The vertex positions of input mesh on the form
+`[  [1.0,2.0,3.0], [3.4,1.3,4.2],...]`
 
-## Examples
+* `cells` The indices of the input mesh. This is either a list of
+quad indices or a list of triangle indices. If quads, it is on the
+form `[  [1,2,3,4], [8,9,10,11],...]`. If triangles, it is on the
+form `[  [1,2,3], [8,9,10],...]`. And note that clockwise ordering of the
+indices is assumed!
 
-Below are some examples of palettes
+* `numSubdivisions` How many times the Catmull-Clark algorithm will be
+run on the input mesh. The more times you run the algorithm, the smoother
+the output mesh will be.
 
-`cosPalette(t,vec3(0.2,0.7,0.4),vec3(0.6,0.9,0.2),vec3(0.6,0.8,0.7),vec3(0.5,0.1,0.0))`
+* `convertToTriangles` The Catmull-Clark algorithm will result in a list
+of quads. If this parameter is true, then those quads will be converted to
+triangles, and returned. Else, the returned mesh is a list of quads. **Defaults** to `true`.
 
+---
 
-<img src="images/f.png" width="356" height="366" />
+Below we can see what happens as we increase the value of the parameter `numSubdivisions`
 
-
-`cosPalette(t,vec3(0.2,0.5,0.3),vec3(0.0,0.5,0.7),vec3(1.0,1.0,1.0),vec3(0.0,0.3,0.7))`
-
-<img src="images/g.png" width="356" height="366" />
-
-
-`cosPalette(t,vec3(0.6,0.0,0.0),vec3(1.0,0.0,0.0),vec3(1.0,0.0,0.0),vec3(1.0,0.0,0.0))`
-
-<img src="images/h.png" width="356" height="366" />
-
-
-`cosPalette(t,vec3(1.0,0.4,0.0),vec3(0.4,0.8,0.0),vec3(0.5,0.3,0.9),vec3(0.9,0.6,0.9))`
-
-<img src="images/j.png" width="356" height="366" />
-
-
-`cosPalette(t,vec3(0.4,0.3,0.1),vec3(0.1,0.1,0.1),vec3(0.4,0.4,0.4),vec3(0.0,0.0,0.0))`
-
-<img src="images/l.png" width="356" height="366" />
-
-
-
+![Animated](images/a.gif)

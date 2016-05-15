@@ -1,28 +1,27 @@
 {
-  "name": "glsl-cos-palette",
+  "name": "gl-catmull-clark",
   "version": "1.0.0",
-  "description": "glsl function for making cosine palettes",
+  "description": "A javascript implementation of the Catmull-Clark subdivision surface algorithm",
   "scripts": {
     "start": "budo --verbose example/index.js -t glslify --live --open",
     "test": "standard"
   },
   "keywords": [
     "stackgl",
-    "glsl",
     "gl",
     "webgl",
-    "procedual",
-    "palette",
-    "cos",
-    "cosine",
-    "palette",
-    "texture",
-    "noise"
+    "mesh",
+    "model",
+    "subdivision",
+    "surface",
+    "algorithm",
+    "Catmull",
+    "Clark",
+    "Catmull-Clark"
   ],
   "author": "Eric Arnebäck <arnebackeric@gmail.com> (https://github.com/Erkaman)",
   "license": "MIT",
   "devDependencies": {
-    "copy-to-clipboard": "^2.0.0",
     "geo-3d-transform-mat4": "^1.0.0",
     "gl-camera-pos-from-view-matrix": "^1.0.1",
     "gl-geometry": "^3.1.0",
@@ -30,20 +29,17 @@
     "gl-now": "^1.4.0",
     "gl-quat": "^1.0.0",
     "gl-shader": "^4.2.0",
-    "gl-vec3": "^1.0.3",
     "glsl-noise": "0.0.0",
     "glslify": "^5.0.2",
-    "isosurface": "^1.0.0",
     "normals": "^1.0.1",
     "orbit-camera": "^1.0.0",
     "pnp-gui": "0.0.3",
-    "primitive-cube": "^2.0.0",
-    "primitive-icosphere": "^1.0.2",
     "vertices-bounding-box": "^1.0.0"
   },
   "dependencies": {
+    "es6-set": "^0.1.4",
     "gl-quads-to-tris": "^1.0.0",
-    "normals": "^1.0.1"
+    "gl-vec3": "^1.0.3"
   },
   "directories": {
     "example": "example"
@@ -55,7 +51,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Erkaman/glsl-cos-palette.git"
+    "url": "https://github.com/Erkaman/gl-catmull-clark.git"
   },
-  "homepage": "https://github.com/Erkaman/glsl-cos-palette#readme"
+  "homepage": "https://github.com/Erkaman/gl-catmull-clark#readme"
 }

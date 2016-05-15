@@ -51,11 +51,7 @@ function centerPositions(positions) {
 
      var newPositions = tform(positions, mat)
 
-
-     // Scale the geometry to a 1x1x1 cube.
-     // Shrink it a little to have a buffer
-     // from edge effects.
-     var bound = 16.0;
+     var bound = 13.0;
      var _scale = [
      bound / (bb[1][0] - bb[0][0]),
      bound / (bb[1][1] - bb[0][1]),
@@ -115,7 +111,7 @@ shell.on("gl-init", function () {
 
 
 
-    // Create "sphere" models
+    // Create "cube" models
     models[0] = [];
     for(var i = 0; i <= 3; ++i) {
 
@@ -214,10 +210,10 @@ shell.on("gl-render", function (t) {
     };
     mouseLeftDownPrev = pressed;
 
-    gui.begin(io, "Window");
+    gui.begin(io, "GUI");
 
     gui.textLine("Model");
-    gui.radioButton("Sphere", renderModel, 0);
+    gui.radioButton("Cube", renderModel, 0);
     gui.radioButton("Thing", renderModel, 1);
 
     gui.separator();

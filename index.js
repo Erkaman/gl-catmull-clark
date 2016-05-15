@@ -1,5 +1,4 @@
 var vec3 = require('gl-vec3');
-var normals = require('normals');
 var Set = require('es6-set');
 var quadsToTris = require('gl-quads-to-tris');
 
@@ -160,7 +159,7 @@ function _catmullClark(positions, cells) {
             faceEdges.push(edgeObject);
         }
 
-        // every face should know its edges. 
+        // every face should know its edges.
         faces[iCell].edges = faceEdges;
     }
 
