@@ -28,7 +28,8 @@ in an object on the form  `{positions: subdividedPositions, cells: subdividedCel
 quad indices or a list of triangle indices. If quads, it is on the
 form `[  [1,2,3,4], [8,9,10,11],...]`. If triangles, it is on the
 form `[  [1,2,3], [8,9,10],...]`. And note that clockwise ordering of the
-indices is assumed!
+indices is assumed! Finally, **do note that Catmull-Clark is mostly meant to be used on meshes made with quads**
+If used on triangular meshes, the quality of the subdivision is generally not as good.
 
 * `numSubdivisions` How many times the Catmull-Clark algorithm will be
 run on the input mesh. The more times you run the algorithm, the smoother
