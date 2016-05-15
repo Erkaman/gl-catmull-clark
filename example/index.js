@@ -13,6 +13,7 @@ var tree = require('./tree.js');
 var boundingBox = require('vertices-bounding-box');
 var tform = require('geo-3d-transform-mat4');
 var cameraPosFromViewMatrix = require('gl-camera-pos-from-view-matrix');
+var quadsToTris = require('gl-quads-to-tris');
 
 var catmullClark = require("../index.js");
 
@@ -24,19 +25,47 @@ var mouseLeftDownPrev = false;
 
 var bg = [0.6, 0.7, 1.0]; // clear color.
 
-function quadsToTris(cells) {
+var models = [];
 
-    var newCells = [];
 
-    for (var iCell = 0; iCell < cells.length; ++iCell) {
+/*
+Can be tweaked by the GUI
+ */
+var renderModel = {val: 0};
+var numSubdividions = {val: 3};
 
-        var cell = cells[iCell];
 
-        newCells.push([cell[0], cell[1], cell[2]]);
-        newCells.push([cell[0], cell[2], cell[3]]);
-    }
 
-    return newCells;
+
+function centerPositions(positions) {
+
+     var bb = boundingBox(positions)
+
+     var _translate = [
+     -0.5 * (bb[0][0] + bb[1][0]),
+     -0.5 * (bb[0][1] + bb[1][1]),
+     -0.5 * (bb[0][2] + bb[1][2])
+     ]
+     var mat = mat4.create()
+     mat4.translate(mat, mat, _translate)
+
+     var newPositions = tform(positions, mat)
+
+
+     // Scale the geometry to a 1x1x1 cube.
+     // Shrink it a little to have a buffer
+     // from edge effects.
+     var bound = 16.0;
+     var _scale = [
+     bound / (bb[1][0] - bb[0][0]),
+     bound / (bb[1][1] - bb[0][1]),
+     bound / (bb[1][2] - bb[0][2])
+     ]
+     var scale = mat4.create()
+     mat4.scale(scale, scale, _scale)
+    newPositions = tform(newPositions, scale)
+
+    return newPositions;
 }
 
 shell.on("gl-init", function () {
@@ -54,124 +83,91 @@ shell.on("gl-init", function () {
     // fix intial camera view.
     camera.rotate([0, 0], [0, 0]);
 
-    positions = [
+    quadPositions = [
         [+1, +1, +1], // 0
         [-1, +1, +1], // 1
         [+1, +1, -1], // 2
         [-1, +1, -1], // 3
-
         [+1, -1, +1], // 4
         [-1, -1, +1], // 5
         [+1, -1, -1], // 6
         [-1, -1, -1]  // 7
-
     ];
 
     quadCells = [
         // +y
-
         [2, 3, 1, 0],
-
         // -y
         [4, 5, 7, 6],
-
         // +z
         [0, 1, 5, 4],
-
         // -z
         [6, 7, 3, 2],
-
-
         // +x
         [6, 2, 0, 4],
-
-
         // -x
         [7, 5, 1, 3],
-
-    ];
-
-    cells = [
-        // +y
-        [2, 1, 0],
-        [1, 2, 3],
-
-        // -y
-        [4, 5, 6],
-        [7, 6, 5],
-
-        // +z
-        [0, 1, 4],
-        [1, 5, 4],
-
-        // -z
-        [6, 3, 2],
-        [3, 6, 7],
-
-        // +x
-        [4, 2, 0],
-        [2, 4, 6],
-
-        // -x
-        [1, 3, 5],
-        [7, 5, 3],
     ];
 
     var obj;
 
     cells = quadCells;
 
+
+
+    /*
+    Create "sphere" models.
+     */
+    models[0] = [];
+    for(var i = 0; i <= 3; ++i) {
+
+        var positions = centerPositions(quadPositions);
+
+        var obj = {};
+        if(i == 0) {
+            obj.positions = positions;
+            obj.cells = quadsToTris(quadCells);
+        } else {
+            obj =  catmullClark(positions, quadCells, i, true);
+
+        }
+
+        models[0][i] = Geometry(gl)
+            .attr('aPosition', obj.positions)
+            .faces(obj.cells)
+            .attr('aNormal', require('normals').vertexNormals(obj.cells, obj.positions));
+    }
+
+
+
     obj = tree.tree();
-    positions = obj.positions;
-    cells = (obj.cells);
+    thingPositions = obj.positions;
+    thingCells = (obj.cells);
 
 
-    var bb = boundingBox(positions)
 
-    // Translate the geometry center to the origin.
-    var _translate = [
-        -0.5 * (bb[0][0] + bb[1][0]),
-        -0.5 * (bb[0][1] + bb[1][1]),
-        -0.5 * (bb[0][2] + bb[1][2])
-    ]
-    var mat = mat4.create()
-    mat4.translate(mat, mat, _translate)
+    //Create "thing" models
+    models[1] = [];
+    for(var i = 0; i <= 3; ++i) {
 
-    positions = tform(positions, mat)
+        var positions = centerPositions(thingPositions);
 
+        var obj = {};
+        if(i == 0) {
+            obj.positions = positions;
+            obj.cells = quadsToTris(thingCells);
+        } else {
+            obj =  catmullClark(positions, thingCells, i, true);
 
-    // Scale the geometry to a 1x1x1 cube.
-    // Shrink it a little to have a buffer
-    // from edge effects.
-    var bound = 16.0;
-    var _scale = [
-        bound / (bb[1][0] - bb[0][0]),
-        bound / (bb[1][1] - bb[0][1]),
-        bound / (bb[1][2] - bb[0][2])
-    ]
-    var scale = mat4.create()
-    mat4.scale(scale, scale, _scale)
-    positions = tform(positions, scale)
+        }
 
+        models[1][i] = Geometry(gl)
+            .attr('aPosition', obj.positions)
+            .faces(obj.cells)
+            .attr('aNormal', require('normals').vertexNormals(obj.cells, obj.positions));
+    }
 
-    obj = catmullClark(positions, cells);
-    positions = obj.positions;
-    cells = (obj.cells);
-
-    obj = catmullClark(positions, cells);
-    positions = obj.positions;
-    cells = (obj.cells);
-
-    obj = catmullClark(positions, cells);
-    positions = obj.positions;
-    cells = (obj.cells);
-
-
-    cells = quadsToTris(cells);
-
-
-    geo = Geometry(gl)
-        .attr('aPosition', positions).faces(cells).attr('aNormal', require('normals').vertexNormals(cells, positions));
+    catmullClark(positions, thingCells, 3, true);
 });
 
 shell.on("gl-render", function (t) {
@@ -200,6 +196,8 @@ shell.on("gl-render", function (t) {
     shader.uniforms.uEyePos = cameraPosFromViewMatrix(scratchVec, view);
 
 
+    var geo = models[renderModel.val][numSubdividions.val-2];
+
     geo.bind(shader);
     geo.draw();
 
@@ -219,7 +217,20 @@ shell.on("gl-render", function (t) {
     mouseLeftDownPrev = pressed;
 
     gui.begin(io, "Window");
-    
+
+    gui.textLine("Model");
+    gui.radioButton("Sphere", renderModel, 0);
+    gui.radioButton("Thing", renderModel, 1);
+
+    gui.separator();
+    gui.textLine("Subdivisions");
+
+    gui.radioButton("No subdivision", numSubdividions, 2);
+    gui.radioButton("1 subdivisions", numSubdividions, 3);
+    gui.radioButton("2 subdivisions", numSubdividions, 4);
+    gui.radioButton("3 subdivisions", numSubdividions, 5);
+
+
     gui.end(gl, canvas.width, canvas.height);
 });
 

@@ -23,7 +23,6 @@ var cells = [];
 function addSegment(dir, length, scale, rotation) {
 
     if (typeof rotation == "undefined") {
-        console.log("lol");
         rotation = [0, 0, 0]; // default
     }
 
@@ -193,15 +192,8 @@ function tree() {
 
 
 
-
-
-
-    // 17 18 14 13
-
-
     var obj = {positions: positions, cells: cells};
 
-    console.log("obj ", obj);
     return obj;
 }
 

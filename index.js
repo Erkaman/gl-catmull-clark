@@ -1,6 +1,7 @@
 var vec3 = require('gl-vec3');
 var normals = require('normals');
 var Set = require('es6-set');
+var quadsToTris = require('gl-quads-to-tris');
 
 
 /*
@@ -25,9 +26,6 @@ for every face store:
 
 
 
-
-
-
     for every vertex store:
     adjacent faces.
     adjacent edges.
@@ -46,7 +44,7 @@ function _mad(out, a, b, s) {
     return out;
 }
 
-function catmullClark(positions, cells) {
+function _catmullClark(positions, cells) {
 
     // original points, indexed by their indices.
     // store adjacent faces and adjacent vertices.
@@ -64,7 +62,6 @@ function catmullClark(positions, cells) {
 
         // now go through vertices in the cell, adding them to the face one by one.
         var cellPositions = cells[iCell];
-       // console.log("pos: ", cellPositions);
         var facePoints = [];
 
         // initialize:
@@ -272,13 +269,10 @@ function catmullClark(positions, cells) {
 
     var index = 0;
 
-   // console.log("face count", faces.length );
-
 
     function getIndex(p) {
         if(! ("index" in p) ) {
             p.index = index++;
-     //       console.log("new index ", p.index);
             newPositions.push( [ p[0], p[1], p[2] ] );
 
         }
@@ -290,22 +284,6 @@ function catmullClark(positions, cells) {
 
         var face = faces[iFace];
 
-/*
-        console.log("createface", face);
-
-        console.log("edges0", face.edges[0].edgePoint);
-        console.log("edges1", face.edges[1].edgePoint);
-        console.log("edges2", face.edges[2].edgePoint);
-        console.log("edges3", face.edges[3].edgePoint);
-
-        console.log("points0", face.points[0].newPoint);
-        console.log("points1", face.points[1].newPoint);
-        console.log("points2", face.points[2].newPoint);
-        console.log("points3", face.points[3].newPoint);
-
-        console.log("facePoint", face.facePoint);
-        */
-
 
         for(var iPoint=0; iPoint < face.points.length; ++iPoint) {
             var point = face.points[iPoint];
@@ -314,8 +292,6 @@ function catmullClark(positions, cells) {
             var b = face.edges[(iPoint+0) % face.edges.length].edgePoint;
             var c = face.facePoint;
             var d = face.edges[(iPoint + face.edges.length-1) % face.edges.length].edgePoint;
-
-
 
 
             var ia = getIndex(a);
@@ -333,6 +309,31 @@ function catmullClark(positions, cells) {
     return {positions: newPositions, cells:newCells};
 
 }
+
+function catmullClark(positions, cells, numSubdivisions, convertToTriangles) {
+
+    if(numSubdivisions < 1) {
+        throw new Error("`numSubdivisions` must be a positive number!");
+    }
+
+    if(typeof convertToTriangles === "undefined") {
+        convertToTriangles = true;
+    }
+
+    var obj =  {positions: positions, cells:cells};
+    for(var i = 0; i < numSubdivisions; ++i) {
+
+        obj = _catmullClark(obj.positions, obj.cells);
+
+    }
+
+    if(convertToTriangles) {
+        obj.cells = quadsToTris(obj.cells);
+    }
+
+    return obj;
+}
+
 
 module.exports= catmullClark;
 

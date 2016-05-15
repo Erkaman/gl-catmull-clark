@@ -42,6 +42,7 @@
     "vertices-bounding-box": "^1.0.0"
   },
   "dependencies": {
+    "gl-quads-to-tris": "^1.0.0",
     "normals": "^1.0.1"
   },
   "directories": {
