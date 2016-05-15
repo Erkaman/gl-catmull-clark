@@ -10,6 +10,9 @@ on a low-poly mesh:
 
 <img src="images/subdivide.png" width="1110" height="620" />
 
+[![NPM](https://nodei.co/npm/gl-catmull-clark.png)](https://www.npmjs.com/package/gl-catmull-clark)
+
+
 ## API
 
 ### function catmullClark(positions, cells, numSubdivisions[, convertToTriangles])
