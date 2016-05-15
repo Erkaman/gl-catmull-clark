@@ -1,6 +1,6 @@
 # gl-catmull-clark
 
-This module implements the Catmull-Clark subdivision surface algorithm
+This module implements the [Catmull-Clark subdivision surface algorithm](https://en.wikipedia.org/wiki/Catmull%E2%80%93Clark_subdivision_surface)
 for WebGL usage. If you feed a low-poly, ugly mesh to this
 algorithm, the result will be a smooth, beautiful mesh. A
 [demo](http://erkaman.github.io/gl-catmull-clark/) is provided.
