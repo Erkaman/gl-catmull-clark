@@ -1,3 +1,11 @@
+/*
+HERE BE DRAGONS!
+
+This code generates the low-poly model seen in the README. 
+But I have not yet cleaned up this code, so it is very ugly!
+*/
+
+
 var vec3 = require('gl-vec3');
 var boundingBox = require('vertices-bounding-box');
 var tform = require('geo-3d-transform-mat4');
